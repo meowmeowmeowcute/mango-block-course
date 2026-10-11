@@ -7,10 +7,11 @@ Upload this file to the board once, then import it:
     send(sid, cmd, params)  send one raw packet, return the reply bytes
     pos(sid)                read the position, 0-1000 (0-240 degrees)
     move(sid, p, ms)        turn to position p in ms milliseconds
+    beep(n)                 beep the buzzer n times, warn before moving
 
 All servos share one wire, each one only answers to its own id (sid).
 """
-from machine import UART, Pin
+from machine import UART, Pin, PWM
 import time
 
 # SS1 header: GP8 sends, GP9 receives, hiwonder bus servos talk at 115200
@@ -48,3 +49,14 @@ def move(sid, p, ms):
     # cmd 1 = move, params are position and time, each low byte first
     # move gets no reply, so only wait 5 ms
     send(sid, 1, bytes([p & 0xFF, p >> 8, ms & 0xFF, ms >> 8]), 5)
+
+def beep(n=1):
+    """beep the buzzer (GP46) n times"""
+    bz = PWM(Pin("BUZZER"), freq=2500, duty_u16=0)
+    for _ in range(n):
+        bz.duty_u16(32768)  # half duty = loudest tone
+        time.sleep_ms(150)
+        bz.duty_u16(0)
+        time.sleep_ms(250)
+
+    bz.deinit()  # release the pin so it stays silent
