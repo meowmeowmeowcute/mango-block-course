@@ -6,6 +6,7 @@ Upload this file to the board once, then import it:
 
     send(sid, cmd, params)  send one raw packet, return the reply bytes
     pos(sid)                read the position, 0-1000 (0-240 degrees)
+    vin(sid)                read the supply voltage in mV
     move(sid, p, ms)        turn to position p in ms milliseconds
     beep(n)                 beep the buzzer n times, warn before moving
 
@@ -43,6 +44,16 @@ def pos(sid):
         return None
 
     return r[5] | r[6] << 8  # low byte first
+
+def vin(sid):
+    """return the supply voltage of servo sid in mV, or None"""
+    r = send(sid, 27)  # cmd 27 = read voltage
+
+    # a good reply is 8 bytes from the same id with the same cmd
+    if len(r) < 8 or r[2] != sid or r[4] != 27:
+        return None
+
+    return r[5] | r[6] << 8  # low byte first, about 12000 on a 12 V supply
 
 def move(sid, p, ms):
     """turn servo sid to position p (0-1000) in ms milliseconds"""
