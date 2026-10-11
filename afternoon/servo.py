@@ -1,3 +1,15 @@
+"""Talk to Hiwonder bus servos on the MANGO X4 SS1 header.
+
+Upload this file to the board once, then import it:
+
+    from servo import *
+
+    send(sid, cmd, params)  send one raw packet, return the reply bytes
+    pos(sid)                read the position, 0-1000 (0-240 degrees)
+    move(sid, p, ms)        turn to position p in ms milliseconds
+
+All servos share one wire, each one only answers to its own id (sid).
+"""
 from machine import UART, Pin
 import time
 
