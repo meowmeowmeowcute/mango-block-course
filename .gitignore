@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+
+# MicroPico 每台電腦自己產生的設定
+.micropico
+.vscode/
+
+# 系統檔
+.DS_Store
+Thumbs.db
+desktop.ini
