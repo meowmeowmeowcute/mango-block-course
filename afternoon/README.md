@@ -8,7 +8,7 @@
 
 ## 要準備的東西
 
-- MANGO X4 開發板、可以傳資料的 USB Type-C 線
+- MANGO BLOCK 開發板、可以傳資料的 USB Type-C 線
 - Hiwonder 45 kg·cm 匯流排舵機 × 3，舵機串接線 × 3
 - 12V 電源和 XT30 供電線（USB 推不動舵機）
 
