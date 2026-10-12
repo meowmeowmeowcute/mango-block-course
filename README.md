@@ -1,12 +1,13 @@
-# MANGO X4 開發板課程
+# MANGO BLOCK 開發板課程
 
-用 MicroPython 控制 MANGO X4 開發板（RP2350B + RM2 無線模組）。
+用 MicroPython 控制 MANGO BLOCK 開發板（RP2350B + RM2 無線模組）。
 
 | 資料夾 | 內容 |
 |---|---|
 | [`firmware/`](firmware/) | 課程用的 MicroPython 韌體（第一次使用前要先燒錄） |
 | [`morning/`](morning/) | 上午：認識板子、LED 與按鈕、蜂鳴器與 pin 腳、藍牙網頁儀表板 |
-| [`afternoon/`](afternoon/) | 下午：馬達 |
+| [`afternoon/`](afternoon/) | 下午：舵機實作（Hiwonder 匯流排舵機） |
+| [`slides/`](slides/) | 全天課程簡報（PDF）：上午第 1~66 頁、下午第 67 頁起 |
 
 ---
 
@@ -19,7 +20,7 @@
 
 ### 2. 需要的東西
 
-- MANGO X4 開發板，以及一條**可以傳資料**的 USB Type-C 線（有些線只能充電）
+- MANGO BLOCK 開發板，以及一條**可以傳資料**的 USB Type-C 線（有些線只能充電）
 - **有藍牙的筆電**（上午的專題會用到）
 - 電腦版 **Chrome 或 Edge** 瀏覽器
 
@@ -43,7 +44,7 @@
 
 1. VS Code → 檔案 → **開啟資料夾** → 選擇解壓縮後的課程資料夾。
 2. 按 `Ctrl+Shift+P`，輸入 `MicroPico: Initialize MicroPico Project` 並執行。
-3. 左下角的狀態列出現 **Pico Connected**，就代表連線成功。
+3. 左下角的狀態列出現 **Board Connected**（舊版顯示 Pico Connected），就代表連線成功。
 4. 打開 `morning/examples/01_hello_mango.py`，按狀態列的 **Run**。
    彩燈亮起、嗶一聲，終端機印出「環境 OK！」就完成了 🎉
 

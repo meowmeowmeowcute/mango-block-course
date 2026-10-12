@@ -3,18 +3,27 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>MANGO X4 儀表板</title>
-<link rel="stylesheet" href="style.css">
+<title>MANGO 儀表板</title>
+<link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
-<!-- 網頁已完成：學生不用改，只要完成板子端的 dashboard.py -->
+<!--
+  網頁的結構（做 TODO 不用改網頁；自由發揮時可以改）
+    index.html   畫面上有什麼：每個 <section class="card"> 是一張卡片
+    style.css    長什麼樣子：顏色、排版
+    app.js       按下去做什麼：每個按鈕的 onclick，用 mango.write(...) 傳資料給板子
+    mango-ble.js 藍牙連線的工具庫：write / read / subscribe
+  卡片標題旁的小字（例如 on_led）＝ 這張卡片會呼叫板子端 dashboard.py 的哪個函式。
+  想加新卡片：複製一個 <section>，改 id，再到 app.js 寫它的 onclick。
+-->
 <header>
-  <h1>MANGO X4 儀表板</h1>
+  <h1>MANGO 儀表板</h1>
   <span id="status" class="status">未連線</span>
   <button id="connectBtn" class="btn primary">連線</button>
 </header>
 
 <main>
+  <!-- 全部彩燈 → 板子 on_led(255, r, g, b)（TODO 1） -->
   <section class="card">
     <h2>全部彩燈 <small>on_led</small></h2>
     <p class="hint">選顏色 → 按「套用」，6 顆燈一起變色。</p>
@@ -25,6 +34,7 @@
     </div>
   </section>
 
+  <!-- 單顆彩燈 → 板子 on_led(index, r, g, b)（TODO 1） -->
   <section class="card">
     <h2>單顆彩燈 <small>on_led</small></h2>
     <p class="hint">先選顏色，再點一顆圓點，只有那一顆燈會變色。</p>
@@ -39,6 +49,7 @@
     </div>
   </section>
 
+  <!-- 燈光效果 → 板子 on_effect(number)；效果本身畫在 draw_xxx（TODO 4 ~ 6） -->
   <section class="card">
     <h2>燈光效果 <small>on_effect</small></h2>
     <p class="hint">呼吸、跑馬燈會使用目前設定的顏色。</p>
@@ -51,6 +62,7 @@
     </div>
   </section>
 
+  <!-- 亮度 → 板子 on_brightness(value)（範例 A），拖動時就會即時送出 -->
   <section class="card">
     <h2>亮度 <small>on_brightness</small></h2>
     <div class="row">
@@ -59,10 +71,11 @@
     </div>
   </section>
 
+  <!-- 蜂鳴器 → 板子 tone_on(freq) / tone_off()（TODO 3）；data-freq 就是頻率 -->
   <section class="card" id="buzzerCard">
     <h2>蜂鳴器 <small>tone_on / tone_off</small></h2>
     <p class="hint">按琴鍵，板子的蜂鳴器發出聲音。</p>
-    <div class="row">
+    <div class="keys4">
       <button class="btn" data-freq="262">Do</button>
       <button class="btn" data-freq="294">Re</button>
       <button class="btn" data-freq="330">Mi</button>
@@ -74,6 +87,7 @@
     </div>
   </section>
 
+  <!-- 按鍵狀態 ← 板子 read_keys()（TODO 2），板子主動通知網頁 -->
   <section class="card">
     <h2>按鍵狀態 <small>read_keys</small></h2>
     <p class="hint">按下板子上的 Key1 / Key2，網頁上對應的方塊要亮起來。</p>
@@ -83,22 +97,17 @@
     </div>
   </section>
 
-  <section class="card" id="tempCard">
-    <h2>晶片溫度</h2>
-    <p class="hint">板子每秒傳一次晶片溫度（比室溫高一些）。</p>
-    <div class="big"><span id="temp">--</span> °C</div>
-    <canvas id="tempChart"></canvas>
-  </section>
-
+  <!-- 小遊戲 → 板子 on_game_start()；結果 ← 板子 mango_ble.game_result(ms)（TODO 7） -->
   <section class="card wide">
-    <h2>小遊戲：反應力</h2>
-    <p class="hint">按「開始」後等燈變綠，越快按 Key1 越好；燈還沒變綠就按算偷跑。</p>
+    <h2>小遊戲：反應力 <small>on_game_start / game_result</small></h2>
+    <p class="hint">按「開始」後板子亮紅燈，等燈變綠就按 Key1，越快越好；還沒變綠就按算偷跑。（要先完成 TODO 7）</p>
     <div class="row">
       <button id="gameBtn" class="btn primary">開始</button>
       <span id="gameMsg">準備好了嗎？</span>
     </div>
   </section>
 
+  <!-- 通訊紀錄：網頁和板子之間傳了什麼 bytes -->
   <section class="card wide">
     <h2>通訊紀錄</h2>
     <p class="hint">→ 寫入板子　⇠ 讀取　← 板子通知（notify）</p>
@@ -106,7 +115,8 @@
   </section>
 </main>
 
-<script src="mango-ble.js"></script>
-<script src="app.js"></script>
+<!-- ?v=3：改過檔案後換個數字，瀏覽器才不會拿舊的快取 -->
+<script src="mango-ble.js?v=3"></script>
+<script src="app.js?v=3"></script>
 </body>
 </html>

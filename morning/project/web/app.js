@@ -1,4 +1,12 @@
-/* app.js — MANGO X4 儀表板網頁（已完成，學生不用改） */
+/* app.js — 儀表板的「按下去做什麼」
+ *
+ * 做 TODO 不用改這個檔案；自由發揮時可以改。結構：
+ *   1. 連線、連線後要做的事（讀目前狀態、訂閱板子的通知）
+ *   2. 每張卡片的 onclick：用 mango.write("名稱", [bytes]) 傳給板子
+ *      名稱和格式寫在 mango-ble.js 最上面；板子收到後會呼叫 dashboard.py 的函式
+ *   3. 從板子收到的通知：mango.subscribe("名稱", callback)
+ * 想加一個按鈕：index.html 加按鈕 → 這裡寫 $("你的id").onclick = safe(async () => { await mango.write(...) });
+ */
 const mango = new MangoBLE();
 const $ = (id) => document.getElementById(id);
 
@@ -9,6 +17,7 @@ function log(text) {
 }
 mango.onLog = log;
 
+// 包一層 try/catch：出錯時寫進通訊紀錄，而不是默默失敗
 function safe(fn) {
   return async (...args) => {
     try {
@@ -19,7 +28,7 @@ function safe(fn) {
   };
 }
 
-// 連線
+// ---------- 1. 連線 ----------
 $("connectBtn").onclick = safe(async () => {
   if (mango.connected) mango.disconnect();
   else await mango.connect();
@@ -44,27 +53,23 @@ const onConnected = safe(async () => {
     dot.style.background = MangoBLE.rgbToHex([leds.getUint8(i * 3), leds.getUint8(i * 3 + 1), leds.getUint8(i * 3 + 2)]);
   });
 
-  // 訂閱按鍵
+  // ---------- 3. 板子的通知 ----------
+  // 按鍵：bit0 = Key1、bit1 = Key2（板子的 read_keys 決定）
   await mango.subscribe("keys", (data) => {
     const mask = data.getUint8(0);
-    const k1 = (mask & 1) !== 0;
-    const k2 = (mask & 2) !== 0;
-    $("key1").classList.toggle("on", k1);
-    $("key2").classList.toggle("on", k2);
-    if (k1) game.onKey1();
+    $("key1").classList.toggle("on", (mask & 1) !== 0);
+    $("key2").classList.toggle("on", (mask & 2) !== 0);
   });
 
-  // 訂閱溫度
-  await mango.subscribe("temp", (data) => {
-    const t = data.getInt16(0, true) / 100;
-    $("temp").textContent = t.toFixed(2);
-    temps.push(t);
-    if (temps.length > 60) temps.shift();
-    drawChart();
+  // 小遊戲結果：int16，毫秒；-1 = 偷跑（板子的 mango_ble.game_result 送來）
+  await mango.subscribe("game", (data) => {
+    const ms = data.getInt16(0, true);
+    $("gameMsg").textContent = ms < 0 ? "偷跑！再試一次" : `反應時間：${ms} ms`;
   });
 });
 
-// 範例 A
+// ---------- 2. 每張卡片的 onclick ----------
+// 全部彩燈：index 255 = 全部
 function setDots(hex) {
   document.querySelectorAll(".led-dot").forEach((d) => (d.style.background = hex));
 }
@@ -78,7 +83,7 @@ $("offBtn").onclick = safe(async () => {
   setDots("#000000");
 });
 
-// 單顆彩燈
+// 單顆彩燈：index 0 ~ 5
 document.querySelectorAll(".led-dot").forEach((dot) => {
   dot.onclick = safe(async () => {
     const index = Number(dot.dataset.index);
@@ -88,22 +93,40 @@ document.querySelectorAll(".led-dot").forEach((dot) => {
   });
 });
 
-// 燈光效果
+// 燈光效果：按鈕上的 data-effect 就是效果編號
 document.querySelectorAll("[data-effect]").forEach((btn) => {
   btn.onclick = safe(async () => {
     await mango.write("effect", [Number(btn.dataset.effect)]);
   });
 });
 
-// 亮度（拖動時只更新數字，放開才送出，避免塞爆藍牙）
+// 亮度：拖到哪裡就即時送出。
+//   拖動時數值變很快，藍牙一次只能送一筆，所以「正在送」的時候只記住最新的值，
+//   送完再送最新的那個，中間的值直接跳過。
+let brightnessSending = false;
+let brightnessPending = null;
+async function sendBrightness() {
+  brightnessSending = true;
+  while (brightnessPending !== null) {
+    const value = brightnessPending;
+    brightnessPending = null;
+    try {
+      await mango.writeFast("brightness", [value]);
+      await new Promise((r) => setTimeout(r, 30)); // 稍微喘口氣，避免把藍牙塞滿
+    } catch (e) {
+      log("⚠ " + e.message);
+    }
+  }
+  brightnessSending = false;
+}
 $("brightness").addEventListener("input", (e) => {
   $("brightnessValue").textContent = e.target.value;
+  if (!mango.connected) return;
+  brightnessPending = Number(e.target.value);
+  if (!brightnessSending) sendBrightness();
 });
-$("brightness").addEventListener("change", safe(async (e) => {
-  await mango.write("brightness", [Number(e.target.value)]);
-}));
 
-// 蜂鳴器
+// 蜂鳴器：[頻率 2 bytes, 毫秒 2 bytes]，板子會呼叫 tone_on，時間到再 tone_off
 function beep(freq, ms) {
   return mango.write("buzzer", [...MangoBLE.u16(freq), ...MangoBLE.u16(ms)]);
 }
@@ -111,72 +134,9 @@ document.querySelectorAll("[data-freq]").forEach((btn) => {
   btn.onclick = safe(() => beep(Number(btn.dataset.freq), 250));
 });
 
-// 溫度折線圖
-const temps = [];
-function drawChart() {
-  const c = $("tempChart");
-  const dpr = window.devicePixelRatio || 1;
-  c.width = c.clientWidth * dpr;
-  c.height = c.clientHeight * dpr;
-  const g = c.getContext("2d");
-  g.clearRect(0, 0, c.width, c.height);
-  if (temps.length < 2) return;
-  let lo = Math.min(...temps), hi = Math.max(...temps);
-  if (hi - lo < 1) { const m = (hi + lo) / 2; lo = m - 0.5; hi = m + 0.5; }
-  const color = getComputedStyle(document.body).getPropertyValue("--accent");
-  const mute = getComputedStyle(document.body).getPropertyValue("--mute");
-  g.fillStyle = mute;
-  g.font = `${11 * dpr}px sans-serif`;
-  g.fillText(hi.toFixed(1), 0, 11 * dpr);
-  g.fillText(lo.toFixed(1), 0, c.height - 2 * dpr);
-  const left = 32 * dpr;
-  g.strokeStyle = color;
-  g.lineWidth = 2 * dpr;
-  g.beginPath();
-  temps.forEach((t, i) => {
-    const x = left + (c.width - left) * i / 59;
-    const y = c.height - 4 * dpr - (c.height - 16 * dpr) * (t - lo) / (hi - lo);
-    i ? g.lineTo(x, y) : g.moveTo(x, y);
-  });
-  g.stroke();
-}
-window.addEventListener("resize", drawChart);
-
-// 反應力遊戲
-//   注意：量到的時間 = 你的反應時間 + 藍牙傳送延遲（約 15~50 ms），可以在報告裡討論
-const game = {
-  state: "idle", // idle → waiting（紅燈）→ go（綠燈）→ idle
-  t0: 0,
-  timer: null,
-
-  start: safe(async () => {
-    if (game.state !== "idle") return;
-    game.state = "waiting";
-    $("gameMsg").textContent = "等綠燈…";
-    await mango.write("effect", [0]);
-    await mango.write("led", [255, 255, 0, 0]);
-    const delay = 2000 + Math.random() * 3000; // 隨機 2~5 秒，避免猜節奏
-    game.timer = setTimeout(safe(async () => {
-      await mango.write("led", [255, 0, 255, 0]);
-      game.t0 = performance.now();
-      game.state = "go";
-    }), delay);
-  }),
-
-  onKey1: safe(async () => {
-    if (game.state === "waiting") {
-      clearTimeout(game.timer);
-      game.state = "idle";
-      $("gameMsg").textContent = "偷跑！再試一次";
-      await beep(200, 400);
-      await mango.write("led", [255, 0, 0, 0]);
-    } else if (game.state === "go") {
-      const ms = Math.round(performance.now() - game.t0);
-      game.state = "idle";
-      $("gameMsg").textContent = `反應時間：${ms} ms`;
-      await beep(1320, 120);
-      await mango.write("led", [255, 0, 0, 0]);
-    }
-  }),
-};
-$("gameBtn").onclick = game.start;
+// 小遊戲：網頁只負責按「開始」和顯示結果，遊戲本身在板子端的 dashboard.py（TODO 7）
+//   好處：反應時間是板子自己量的，不會被藍牙延遲影響
+$("gameBtn").onclick = safe(async () => {
+  $("gameMsg").textContent = "等綠燈…";
+  await mango.write("game", [1]);
+});

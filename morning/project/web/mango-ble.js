@@ -1,9 +1,10 @@
-/* mango-ble.js — MANGO X4 的 Web Bluetooth 小工具庫（已完成，不需修改）
+/* mango-ble.js — MANGO 的 Web Bluetooth 小工具庫（做 TODO 不用改；新增藍牙功能時要在 MANGO_CHARS 加一行）
  *
  * 用法：
  *   const mango = new MangoBLE();
  *   await mango.connect();                       // 跳出藍牙裝置選單
  *   await mango.write("led", [255, 255, 0, 0]);  // 寫入 bytes
+ *   await mango.writeFast("brightness", [50]);   // 快速寫入（不等回覆，拖滑桿用）
  *   const data = await mango.read("brightness"); // 讀出 DataView
  *   await mango.subscribe("keys", (data) => { ... data.getUint8(0) ... });
  *
@@ -13,7 +14,9 @@
  *   effect      1 byte：0 靜態、1 彩虹、2 呼吸、3 跑馬燈、4 警示燈
  *   buzzer      4 bytes：頻率 uint16 小端序 + 毫秒 uint16 小端序
  *   keys        1 byte：bit0 = Key1、bit1 = Key2（notify）
- *   temp        int16 小端序，°C × 100（notify）
+ *   game        寫 1 byte：1 = 開始；notify int16 小端序：反應時間毫秒，-1 = 偷跑
+ *
+ * 新增功能：在下面的 MANGO_CHARS 加一行「名稱: UUID」，UUID 中間的 4 碼要和 board/mango_ble.py 一樣
  */
 const MANGO_SERVICE = "4d414e47-4f58-3400-8000-000000000000";
 const MANGO_CHARS = {
@@ -22,7 +25,7 @@ const MANGO_CHARS = {
   effect: "4d414e47-4f58-3403-8000-000000000000",
   buzzer: "4d414e47-4f58-3404-8000-000000000000",
   keys: "4d414e47-4f58-3405-8000-000000000000",
-  temp: "4d414e47-4f58-3406-8000-000000000000",
+  game: "4d414e47-4f58-3406-8000-000000000000",
 };
 
 class MangoBLE {
@@ -82,6 +85,18 @@ class MangoBLE {
     }
     return this._run(async () => {
       await this._char(name).writeValueWithResponse(data);
+      this.onLog(`→ ${name}: ${MangoBLE.hex(data)}`);
+    });
+  }
+
+  /** 快速寫入：不等板子回覆，給拖滑桿這種「連續送出、只在乎最新值」的資料用。
+   *  板子端的特徵值要開 write_no_response（mango_ble.py 的亮度就是）；沒開的話自動改用一般寫入。 */
+  writeFast(name, bytes) {
+    const data = Uint8Array.from(bytes);
+    return this._run(async () => {
+      const c = this._char(name);
+      if (c.properties.writeWithoutResponse) await c.writeValueWithoutResponse(data);
+      else await c.writeValueWithResponse(data);
       this.onLog(`→ ${name}: ${MangoBLE.hex(data)}`);
     });
   }
