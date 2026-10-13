@@ -25,7 +25,6 @@
 4. POWER_SW 撥到 **ON**。
 
 ## 2. 先讀，不要轉
-
 打開 `scan.py` → **Run**。它只會讀取，舵機不會動。
 
 ```
@@ -42,7 +41,7 @@ found: [1]
 | 什麼都沒找到 | 舵機沒電或沒接好 | 檢查 XT30、POWER_SW、SS1 接頭 |
 
 ## 3. 讓一顆轉
-
+先將 `servo.py` upload 到板子上  
 在 vREPL 一行一行輸入（ID 換成你在 `scan.py` 看到的）：
 
 ```python
