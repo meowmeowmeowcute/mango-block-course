@@ -7,7 +7,7 @@
 | [`firmware/`](firmware/) | 課程用的 MicroPython 韌體（第一次使用前要先燒錄） |
 | [`morning/`](morning/) | 上午：認識板子、LED 與按鈕、蜂鳴器與 pin 腳、藍牙網頁儀表板 |
 | [`afternoon/`](afternoon/) | 下午：舵機實作（Hiwonder 匯流排舵機） |
-| [`slides/`](slides/) | 全天課程簡報（PDF）：上午第 1~66 頁、下午第 67 頁起 |
+| [`slides/`](slides/) | 全天課程簡報（PDF）：上午第 1~72 頁、下午第 73 頁起 |
 
 ---
 
