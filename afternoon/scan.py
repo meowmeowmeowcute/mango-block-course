@@ -14,7 +14,7 @@ an id. Needs servo.py on the board.
 """
 from servo import send
 
-MAX_ID = 10 # check ids 0 .. MAX_ID - 1
+MAX_ID = 254 # check ids 0 .. MAX_ID - 1
 TRIES = 5   # asks per id that answers
 
 def parse(r, sid, cmd):
@@ -48,6 +48,8 @@ overlap = []
 unstable = []
 
 for sid in range(MAX_ID):
+    print("Scanning ID: %3d" % sid, end="\r")
+
     # quick look: twice silent means nobody has this id
     replies = [send(sid, 28) for _ in range(2)]
     if not any(replies):
@@ -74,7 +76,9 @@ for sid in range(MAX_ID):
         pos = u16(clean[-1][5:7], True)
         print("  ok  vin %s mV, pos %s, temp %s C" % (vin and u16(vin), pos, temp and temp[0]))
 
+print(" " * 20, end="\r")
 print("found:", found)
+
 if overlap:
     print("overlap:", overlap, "keep one servo on the bus and change its id")
 if unstable:
