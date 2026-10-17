@@ -1,4 +1,4 @@
-"""Talk to Hiwonder bus servos on the MANGO X4 SS1 header.
+"""Talk to Hiwonder bus servos on the MANGO BLOCK SS1 header.
 
 Upload this file to the board once, then import it:
 
@@ -15,7 +15,6 @@ All servos share one wire, each one only answers to its own id (sid).
 from machine import UART, Pin, PWM
 import time
 
-# SS1 header: GP8 sends, GP9 receives, hiwonder bus servos talk at 115200
 uart = UART(1, 115200, tx=Pin(8), rx=Pin(9))
 
 def send(sid, cmd, params=b"", wait=30) -> bytes:
