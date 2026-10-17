@@ -7,7 +7,7 @@
 | [`firmware/`](firmware/) | 課程用的 MicroPython 韌體（第一次使用前要先燒錄） |
 | [`morning/`](morning/) | 上午：認識板子、LED 與按鈕、蜂鳴器與 pin 腳、藍牙網頁儀表板 |
 | [`afternoon/`](afternoon/) | 下午：舵機實作（Hiwonder 匯流排舵機） |
-| [`slides/`](slides/) | 全天課程簡報（PDF）：上午第 1~72 頁、下午第 73 頁起 |
+| [`slides/`](slides/) | 全天課程簡報（PDF）：上午第 1~89 頁、下午第 90 頁起 |
 
 ---
 
@@ -54,7 +54,7 @@
 |---|---|---|
 | **Run** | 按狀態列的「Run」 | 把目前打開的檔案送到板子上執行（不會存進板子） |
 | **Stop** | 按狀態列的「Stop」，或在終端機按 `Ctrl+C` | 停止正在執行的程式 |
-| **Upload** | 在檔案上按右鍵 → **Upload File to Board** | 把檔案存進板子 |
+| **Upload** | 在檔案上按右鍵 → **MicroPico** → **Upload File to Board** | 把檔案存進板子 |
 
 > ⚠ 不要把自己的程式存成 `main.py` 上傳到板子，否則板子每次開機都會自動執行它。
 

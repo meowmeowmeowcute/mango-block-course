@@ -134,7 +134,7 @@ document.querySelectorAll("[data-freq]").forEach((btn) => {
   btn.onclick = safe(() => beep(Number(btn.dataset.freq), 250));
 });
 
-// 小遊戲：網頁只負責按「開始」和顯示結果，遊戲本身在板子端的 dashboard.py（TODO 7）
+// 小遊戲：網頁只負責按「開始」和顯示結果，遊戲本身在板子端的 dashboard.py（小遊戲挑戰）
 //   好處：反應時間是板子自己量的，不會被藍牙延遲影響
 $("gameBtn").onclick = safe(async () => {
   $("gameMsg").textContent = "等綠燈…";

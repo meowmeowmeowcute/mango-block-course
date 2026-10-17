@@ -1,60 +1,61 @@
 """
-03 讀取按鈕：按住才亮、按一下切換
+03 讀取按鍵：按住才亮、按一下切換
 ==================================================================
-觀念 1：腳位設成「輸入」，用 .value() 讀出 0 或 1
+① 讀按鍵：button1.value() 會得到 1（按下）或 0（放開）
 
-  key1 = Pin("KEY1", Pin.IN, Pin.PULL_DOWN)
-  key1.value()   → 按下 = 1，放開 = 0
+② 按鍵 1 —— 按住才亮：只看「現在」是不是 1
 
-  Pin.PULL_DOWN：沒按的時候把腳位拉到 0，數值才會穩定（板子上的按鍵一定要加）。
-
-觀念 2：偵測「按下的那一瞬間」
-  按住才亮：只看「現在」是 0 還是 1                     ← Key1
-  按一下切換：抓數值從 0 變成 1 的那一刻                 ← Key2
-      上一次 = 0、這一次 = 1  → 剛剛被按下
-
-  為什麼每次要等 0.02 秒？按鈕裡的金屬片接觸時會彈跳，0 和 1 會快速跳好幾次，
-  不等一下的話，按一次可能會被當成按好幾次（稱為「去彈跳」）。
+③ 按鍵 2 —— 按一下切換：抓「上一次是 0、這一次是 1」的那一瞬間
+                         （= 剛剛被按下），燈就開 ↔ 關 互換
 
 動手改改看
-  1. 按住 Key1 改成亮藍燈
-  2. 把 time.sleep(0.02) 改成 0，快速按 Key2 幾次，看看會不會亂跳
-  3. 每按一次 Key2 換一個顏色：紅 → 綠 → 藍 → 紅 …（提示：用一個串列存顏色）
-  ★ 讀按鈕會用在網頁儀表板實作的 TODO 2；「剛剛被按下」會用在 TODO 7（反應力小遊戲）！
+  1. 按住按鍵 1 改成亮藍燈 (0, 0, 30)
+  2. 在迴圈裡加一行 print(button2_now)，按一下按鍵 2，終端機印出幾個 1？
+  ★ 讀按鍵會用在網頁儀表板實作的 TODO 2；「剛剛被按下」會用在小遊戲挑戰！
 """
 import time
 
 import neopixel
 from machine import Pin
 
-np = neopixel.NeoPixel(Pin("WS2812B"), 6)
-key1 = Pin("KEY1", Pin.IN, Pin.PULL_DOWN)
-key2 = Pin("KEY2", Pin.IN, Pin.PULL_DOWN)
+leds = neopixel.NeoPixel(Pin("WS2812B"), 6)          # 6 顆彩燈
 
-light_on = False    # Key2 切換的燈現在是開還是關
-last2 = 0           # 上一次讀到的 Key2
+# 按鍵：Pin.IN 代表「讀進來」；Pin.PULL_DOWN 讓沒按的時候固定是 0
+#   MANGO BLOCK 板子上已經有下拉電阻，不加也不會出錯；但不是每塊板子都有，養成習慣加上
+button1 = Pin("KEY1", Pin.IN, Pin.PULL_DOWN)         # 按鍵 1（Key1）
+button2 = Pin("KEY2", Pin.IN, Pin.PULL_DOWN)         # 按鍵 2（Key2）
+
+RED = (30, 0, 0)
+WHITE = (30, 30, 30)
+OFF = (0, 0, 0)
+
+light_is_on = False     # 按鍵 2 控制的燈，現在是開還是關
+button2_before = 0      # 上一次讀到的按鍵 2（用來抓「剛剛被按下」）
 
 try:
     while True:
-        now1 = key1.value()                 # 讀按鈕：0 或 1
-        now2 = key2.value()
+        button1_now = button1.value()     # 現在的按鍵 1：1 = 按下，0 = 放開
+        button2_now = button2.value()     # 現在的按鍵 2
 
-        # --- 觀念 2-2：Key2 從 0 變成 1 → 剛剛被按下，開 ↔ 關 互換 ---
-        if last2 == 0 and now2 == 1:
-            light_on = not light_on
-            print("Key2 切換！燈現在是", "開" if light_on else "關")
-        last2 = now2
+        # ③ 按鍵 2：上一次是 0、這一次是 1 → 剛剛被按下 → 開關互換
+        if button2_before == 0 and button2_now == 1:
+            light_is_on = not light_is_on
+            print("按鍵 2 切換！燈現在是", "開" if light_is_on else "關")
+        button2_before = button2_now      # 記住這一次，下一圈拿來比
 
-        # --- 觀念 2-1：Key1 按住才亮（優先）；其他時候照 Key2 的開關 ---
-        if now1 == 1:
-            np.fill((30, 0, 0))             # 按住 Key1 → 全部紅色
-        elif light_on:
-            np.fill((30, 30, 30))           # Key2 開 → 白色
+        # ② 按鍵 1：按住就亮紅燈；沒按住的時候，照按鍵 2 的開關
+        if button1_now == 1:
+            leds.fill(RED)
+        elif light_is_on:
+            leds.fill(WHITE)
         else:
-            np.fill((0, 0, 0))              # 關燈
-        np.write()
+            leds.fill(OFF)
+        leds.write()
 
-        time.sleep(0.02)                    # 去彈跳
+        # 每圈休息 0.02 秒。拿掉會怎樣？
+        #   · 彩燈要「安靜一下下」才會顯示新顏色；一直 write() 不停，燈就來不及更新
+        #   · 按鍵按下時會抖動，太快讀會被算成按了好幾次
+        time.sleep(0.02)
 finally:
-    np.fill((0, 0, 0))
-    np.write()
+    leds.fill(OFF)
+    leds.write()

@@ -64,7 +64,12 @@ class MangoBLE {
     const server = await this.device.gatt.connect();
     const service = await server.getPrimaryService(MANGO_SERVICE);
     for (const [name, uuid] of Object.entries(MANGO_CHARS)) {
-      this.chars[name] = await service.getCharacteristic(uuid);
+      try {
+        this.chars[name] = await service.getCharacteristic(uuid);
+      } catch (e) {
+        // 網頁加了新功能、板子還沒有：其他功能照常可以用
+        this.onLog(`⚠ 板子沒有「${name}」：mango_ble.py 有加同一個編號嗎？改完要重新 Upload File to Board`);
+      }
     }
     this.onLog("✓ 已連線");
     this.onConnectionChange(true, this.device.name);
@@ -151,7 +156,7 @@ class MangoBLE {
   _char(name) {
     if (!this.connected) throw new Error("尚未連線");
     const c = this.chars[name];
-    if (!c) throw new Error(`沒有名為「${name}」的特徵值`);
+    if (!c) throw new Error(`板子沒有「${name}」這個功能：mango-ble.js、mango_ble.py 都加了同一個編號嗎？有重新 Upload 嗎？`);
     return c;
   }
 

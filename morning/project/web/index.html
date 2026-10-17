@@ -23,7 +23,7 @@
 </header>
 
 <main>
-  <!-- 全部彩燈 → 板子 on_led(255, r, g, b)（TODO 1） -->
+  <!-- 全部彩燈 → 板子 on_led(255, red, green, blue)（TODO 1） -->
   <section class="card">
     <h2>全部彩燈 <small>on_led</small></h2>
     <p class="hint">選顏色 → 按「套用」，6 顆燈一起變色。</p>
@@ -34,7 +34,7 @@
     </div>
   </section>
 
-  <!-- 單顆彩燈 → 板子 on_led(index, r, g, b)（TODO 1） -->
+  <!-- 單顆彩燈 → 板子 on_led(led_number, red, green, blue)（TODO 1） -->
   <section class="card">
     <h2>單顆彩燈 <small>on_led</small></h2>
     <p class="hint">先選顏色，再點一顆圓點，只有那一顆燈會變色。</p>
@@ -49,7 +49,7 @@
     </div>
   </section>
 
-  <!-- 燈光效果 → 板子 on_effect(number)；效果本身畫在 draw_xxx（TODO 4 ~ 6） -->
+  <!-- 燈光效果 → 板子 on_effect(number)；效果本身畫在 draw_xxx（跑馬燈是 TODO 4） -->
   <section class="card">
     <h2>燈光效果 <small>on_effect</small></h2>
     <p class="hint">呼吸、跑馬燈會使用目前設定的顏色。</p>
@@ -71,7 +71,7 @@
     </div>
   </section>
 
-  <!-- 蜂鳴器 → 板子 tone_on(freq) / tone_off()（TODO 3）；data-freq 就是頻率 -->
+  <!-- 蜂鳴器 → 板子 tone_on(pitch) / tone_off()（TODO 3）；data-freq 就是音高 -->
   <section class="card" id="buzzerCard">
     <h2>蜂鳴器 <small>tone_on / tone_off</small></h2>
     <p class="hint">按琴鍵，板子的蜂鳴器發出聲音。</p>
@@ -97,10 +97,10 @@
     </div>
   </section>
 
-  <!-- 小遊戲 → 板子 on_game_start()；結果 ← 板子 mango_ble.game_result(ms)（TODO 7） -->
+  <!-- 小遊戲 → 板子 on_game_start()；結果 ← 板子 mango_ble.game_result(ms)（挑戰） -->
   <section class="card wide">
     <h2>小遊戲：反應力 <small>on_game_start / game_result</small></h2>
-    <p class="hint">按「開始」後板子亮紅燈，等燈變綠就按 Key1，越快越好；還沒變綠就按算偷跑。（要先完成 TODO 7）</p>
+    <p class="hint">按「開始」後板子亮紅燈，等燈變綠就按 Key1，越快越好；還沒變綠就按算偷跑。（要先完成小遊戲挑戰）</p>
     <div class="row">
       <button id="gameBtn" class="btn primary">開始</button>
       <span id="gameMsg">準備好了嗎？</span>
