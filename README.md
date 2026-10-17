@@ -7,7 +7,7 @@
 | [`firmware/`](firmware/) | 課程用的 MicroPython 韌體（第一次使用前要先燒錄） |
 | [`morning/`](morning/) | 上午：認識板子、LED 與按鈕、蜂鳴器與 pin 腳、藍牙網頁儀表板 |
 | [`afternoon/`](afternoon/) | 下午：舵機實作（Hiwonder 匯流排舵機） |
-| [`slides/`](slides/) | 全天課程簡報（PDF）：上午第 1~89 頁、下午第 90 頁起 |
+| [`slides/`](slides/) | 全天課程簡報（PDF）：中文版 `MANGO_BLOCK_全日課程.pdf`、英文版 `MANGO_BLOCK_Full_Day_EN.pdf`（English slides）；上午第 1~89 頁、下午第 90 頁起 |
 
 ---
 
