@@ -35,7 +35,7 @@
 
 1. 用 USB 線接上板子。
 2. **按住 BOOT 鍵 → 按一下 RESET 鍵 → 放開 BOOT 鍵**，電腦會出現一個名叫 `RP2350` 的磁碟。
-3. 把 [`firmware/MANGO_X4-v1.29.0.uf2`](firmware/) 拖進這個磁碟。
+3. 把 [`firmware/MANGO_BLOCK-v1.29.0.uf2`](firmware/) 拖進這個磁碟。
 4. 磁碟自動消失，就代表燒錄完成。
 
 燒錄韌體不會清掉板子上原本存的檔案。

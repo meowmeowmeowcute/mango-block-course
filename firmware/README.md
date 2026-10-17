@@ -1,12 +1,12 @@
-# MANGO X4 課程韌體
+# MANGO BLOCK 課程韌體
 
-`MANGO_X4-v1.29.0.uf2`：MicroPython v1.29.0，加上 MANGO X4 的藍牙／Wi-Fi 支援，以及板上元件的腳位名稱。
+`MANGO_BLOCK-v1.29.0.uf2`：MicroPython v1.29.0，加上 MANGO BLOCK 的藍牙／Wi-Fi 支援，以及板上元件的腳位名稱。
 
 ## 燒錄方法
 
 1. 用 USB 線接上板子。
 2. **按住 BOOT 鍵 → 按一下 RESET 鍵 → 放開 BOOT 鍵**，電腦會出現一個名叫 `RP2350` 的磁碟。
-3. 把 `MANGO_X4-v1.29.0.uf2` 拖進這個磁碟，磁碟自動消失就完成了。
+3. 把 `MANGO_BLOCK-v1.29.0.uf2` 拖進這個磁碟，磁碟自動消失就完成了。
 
 燒錄不會清掉板子上原本存的檔案。
 
